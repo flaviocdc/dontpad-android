@@ -17,6 +17,7 @@ public class DontpadActivity extends Activity {
 	private static final String TAG = DontpadActivity.class.getSimpleName();
 	
 	private WebView browser;
+	private String currentLink;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,15 +28,27 @@ public class DontpadActivity extends Activity {
 		
 		setContentView(R.layout.activity_web);
 		
-		Intent intent = getIntent();
-		String link = intent.getStringExtra("link");
+		if (savedInstanceState == null) {
+			makeLinkFromIntent();
+		} else {
+			String savedLink = savedInstanceState.getString("link");
+			if (savedLink != null) {
+				Log.d(TAG, "Restaurando ultimo link: " + savedLink);
+				currentLink = savedLink;
+			} else {
+				makeLinkFromIntent();
+			}
+		}
 		
-		
-		Log.d(TAG, "Opening dontpad link:" + link);
-		initBrowser(link);
+		initBrowser();
 	}
 
-	private void initBrowser(String link) {
+	private void makeLinkFromIntent() {
+		Intent intent = getIntent();
+		currentLink = "http://dontpad.com/"+intent.getStringExtra("link");
+	}
+
+	private void initBrowser() {
 		browser = (WebView) findViewById(R.id.browser);
 		browser.getSettings().setJavaScriptEnabled(true);
 		browser.getSettings().setBuiltInZoomControls(true);
@@ -45,6 +58,8 @@ public class DontpadActivity extends Activity {
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
 				if (Uri.parse(url).getHost().contains("dontpad.com")) {
+					Log.d(TAG, "Salvando link: " + url.toString());
+					currentLink = url.toString();
 					return false;
 				}
 				
@@ -52,13 +67,16 @@ public class DontpadActivity extends Activity {
 				startActivity(intent);
 				return true;
 			}
+			
+			public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+				Toast.makeText(DontpadActivity.this, "Oh no! " + description, Toast.LENGTH_SHORT).show();
+			}
 		});
 		
 		browser.setWebChromeClient(new WebChromeClient() {
 			public void onProgressChanged(WebView view, int progress) {
 				// Activities and WebViews measure progress with different scales.
 				// The progress meter will automatically disappear when we reach 100%
-				Log.d(TAG, "To aqui! " + progress);
 				DontpadActivity.this.setTitle("Loading...");
 				DontpadActivity.this.setProgress(progress * 100);
  
@@ -66,13 +84,16 @@ public class DontpadActivity extends Activity {
                 	DontpadActivity.this.setTitle(R.string.app_name);
 			}
 		});
-		browser.setWebViewClient(new WebViewClient() {
-			public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-				Toast.makeText(DontpadActivity.this, "Oh no! " + description, Toast.LENGTH_SHORT).show();
-			}
-		});
 		
-		browser.loadUrl("http://www.dontpad.com/"+link);
+		Log.d(TAG, "Opening dontpad link:" + currentLink);
+		browser.loadUrl(currentLink);
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		
+		outState.putString("link", currentLink);
 	}
 	
 	@Override
