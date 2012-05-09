@@ -1,4 +1,4 @@
-package br.ufrj;
+package com.dontpad.android;
 
 import android.app.Activity;
 import android.content.Intent;
