@@ -20,7 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".DontpadActivity"
-            	  android:label="info">
+            	  android:label="@string/app_name">
         </activity>
     </application>
 

@@ -21,7 +21,7 @@ public class HomeActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        setContentView(R.layout.main);
+        setContentView(R.layout.activity_home);
         final String[] links = {"ufrjagil", "t2", "C"};
         
         ListView lista = (ListView) findViewById(R.id.lista);
