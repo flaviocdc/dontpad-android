@@ -30,6 +30,8 @@ public class DontpadActivity extends Activity {
 		Intent intent = getIntent();
 		String link = intent.getStringExtra("link");
 		
+		
+		Log.d(TAG, "Opening dontpad link:" + link);
 		initBrowser(link);
 	}
 
